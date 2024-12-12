@@ -50,27 +50,54 @@
 /********************** macros and definitions *******************************/
 
 
+/********************** external data declaration ****************************/
+extern ADC_HandleTypeDef hadc1;
+
 /********************** internal data declaration ****************************/
+static uint32_t tickstart;
+static bool b_trig_new_conversion;
+adc_valor_t adc_value;
 
 /********************** internal functions declaration ***********************/
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc);
+void renew_and_wait(void);
 
 /********************** internal data definition *****************************/
 const char *p_task_adc 		= "Task ADC";
 
-/********************** external data declaration *****************************/
-
-extern ADC_HandleTypeDef hadc1;
-
 /********************** external functions definition ************************/
-void task_adc_init(void *parameters)
-{
-	/* Print out: Task Initialized */
-	LOGGER_LOG("  %s is running - %s\r\n", GET_NAME(task_adc_init), p_task_adc);
+void task_adc_init(void) {
+	// Configuración de interrupciones del ADC
+	HAL_NVIC_SetPriority(ADC1_2_IRQn, 2, 0);
+	HAL_NVIC_EnableIRQ(ADC1_2_IRQn);
 
+	adc_value.value = 0;
+
+    	b_trig_new_conversion = true; // Inicializa la primera conversión
+
+    	tickstart = HAL_GetTick();
+	LOGGER_LOG("  %s is running - %s\r\n", GET_NAME(task_adc_init), p_task_adc);
 }
 
-void task_adc_update(void *parameters)
-{
+void task_adc_update() {
+    renew_and_wait();
+}
+
+void renew_and_wait() {
+    // Inicia la conversión si se permite
+    if (b_trig_new_conversion) {
+       	b_trig_new_conversion = false;
+        HAL_ADC_Start_IT(&hadc1);
+    }
+    HAL_Delay(5);
+    //LOGGER_LOG("Valor de la muestra: %u\n", adc_value.value);
+}
+
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+    uint16_t hold_value = HAL_ADC_GetValue(&hadc1);
+	adc_value.value = hold_value;
+	b_trig_new_conversion = true;
 }
 
 /********************** end of file ******************************************/

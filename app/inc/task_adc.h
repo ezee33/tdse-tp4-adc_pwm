@@ -53,8 +53,8 @@ extern "C" {
 extern uint32_t g_task_a_cnt;
 
 /********************** external functions declaration ***********************/
-void task_adc_init(void *parameters);
-void task_adc_update(void *parameters);
+void task_adc_init(void);
+uint16_t *task_adc_update(void);
 
 /********************** End of CPP guard *************************************/
 #ifdef __cplusplus

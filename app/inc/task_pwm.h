@@ -45,6 +45,7 @@ extern "C" {
 
 /********************** inclusions *******************************************/
 
+
 /********************** macros ***********************************************/
 
 /********************** typedef **********************************************/
@@ -53,8 +54,9 @@ extern "C" {
 extern uint32_t g_task_b_cnt;
 
 /********************** external functions declaration ***********************/
-void task_pwm_init(void *parameters);
-void task_pwm_update(void *parameters);
+
+void task_pwm_init(void);
+void task_pwm_update(uint16_t *active);
 
 /********************** End of CPP guard *************************************/
 #ifdef __cplusplus

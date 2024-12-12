@@ -18,8 +18,13 @@ extern "C" {
 
 /********************** typedef **********************************************/
 
+typedef struct {
+	uint16_t value;
+} adc_valor_t;
+
 /********************** external data declaration ****************************/
 
+extern adc_valor_t adc_value;
 
 /********************** external functions declaration ***********************/
 

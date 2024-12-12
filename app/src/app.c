@@ -373,7 +373,6 @@ void app_update(void)
 	uint32_t index;
 	uint32_t cycle_counter;
 	uint32_t cycle_counter_time_us;
-
 	/* Check if it's time to run tasks */
 	if (G_APP_TICK_CNT_INI < g_app_tick_cnt)
     {
@@ -400,7 +399,9 @@ void app_update(void)
 			 * We use the function name and parameters in the function call.
 			 */
 			/* Run task_x_update */
+
 			(*task_cfg_list[index].task_update)(task_cfg_list[index].parameters);
+
 
 			cycle_counter = cycle_counter_get();
 			cycle_counter_time_us = cycle_counter_time_us();

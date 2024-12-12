@@ -43,32 +43,66 @@
 #include "logger.h"
 #include "dwt.h"
 
+
 /* Application & Tasks includes. */
 #include "board.h"
 #include "app.h"
 
+
 /********************** macros and definitions *******************************/
+
+#define PWM_MAX_PERIOD (65535)
+#define ADC_MAX_VALUE (4036)
+
+/********************** external data declaration *****************************/
+extern TIM_HandleTypeDef htim3;
+
+/********************** external functions definition ************************/
 
 /********************** internal data declaration ****************************/
 
-/********************** internal functions declaration ***********************/
+void setPWM(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period, uint16_t pulse);
 
 /********************** internal data definition *****************************/
+
 const char *p_task_pwm 		= "Task PWM";
 
-/********************** external data declaration *****************************/
+/********************** internal functions definitions ***********************/
+
+void setPWM(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period, uint16_t pulse) {
+    HAL_TIM_PWM_Stop(&timer, channel);
+    TIM_OC_InitTypeDef sConfigOC;
+    timer.Init.Period = period;
+    HAL_TIM_PWM_Init(&timer);
+
+    sConfigOC.OCMode = TIM_OCMODE_PWM1;
+    sConfigOC.Pulse = pulse;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+    HAL_TIM_PWM_ConfigChannel(&timer, &sConfigOC, channel);
+    HAL_TIM_PWM_Start(&timer, channel);
+}
 
 
-/********************** external functions definition ************************/
-void task_pwm_init(void *parameters)
-{
+void task_pwm_init(void *parameters){
 	/* Print out: Task Initialized */
+	setPWM(htim3, TIM_CHANNEL_1, PWM_MAX_PERIOD, 0);
 	LOGGER_LOG("  %s is running - %s\r\n", GET_NAME(task_pwm_init), p_task_pwm);
 }
 
-void task_pwm_update(void *parameters)
-{
+void task_pwm_update(void *parameters){
+    static uint32_t last_adc_value = 0;
+
+
+	// Escalar el valor del ADC al rango del PWM
+	uint16_t pwm_pulse = (uint16_t)((adc_value.value * PWM_MAX_PERIOD) / ADC_MAX_VALUE);
+
+	// Configurar el nuevo ciclo de trabajo del PWM
+	setPWM(htim3, TIM_CHANNEL_1, PWM_MAX_PERIOD, pwm_pulse);
+    // Si el valor del ADC cambió, actualizar el PWM
+    if (adc_value.value != last_adc_value) {
+    	last_adc_value = adc_value.value;
+        LOGGER_LOG("ADC Value: %u, PWM Pulse: %u\n", adc_value.value, pwm_pulse);
+    }
 
 }
-
-/********************** end of file ******************************************/

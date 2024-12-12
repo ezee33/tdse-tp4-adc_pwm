@@ -1,0 +1,13 @@
+El proyecto permite modular el brillo un LED mediante la lectura de tensión desde un potenciómetro. Para lograr este comportamiento se utilizaron los siguientes
+archivos:
+
+task_adc.c: En este archivo nos encargamos de leer el valor de tensión proveniente del potenciómetro. Las muestras se tomaron mediante interrupciones, con el
+fin de liberar el procesador mientras el ADC termina con su tarea. Una vez finalizada la toma de la muestra, se ejecuta una interrupción que actualiza el valor
+de una estructura global llamada adc_valor_t, definida en el archivo app.h.
+
+task_pwm.c: En este archivo se reciben los valores tomados por el ADC y se genera un pulso con un ciclo de trabajo proporcional al valor muestreado.
+Para acceder al valor muestreado se hace nuevamente uso de la estructura adc_valor_t.
+
+Observación: Si bien a lo largo de la cursada se trabajó con otra modalidad, se considera que por la simplicidad del proyecto no era conveniente
+crear una interfaz para comunicar task_adc.c y task_pwm.c. De todas maneras, grupalmente comprendemos que el enfoque visto durante el curso es más
+escalable y elegante, por lo que buscaremos aplicarlo en nuestros futuros proyectos.
